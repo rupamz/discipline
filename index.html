@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DisciplineForge - Mutual Accountability</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .app-title {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .app-subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-view {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            transition: all 0.5s ease;
+        }
+
+        .user-template {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .user-template:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .user-photo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            font-weight: bold;
+            color: white;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .user-name {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .user-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ffd93d;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .debt-amount {
+            color: #ff6b6b !important;
+        }
+
+        /* Expanded View Styles */
+        .expanded-view {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .expanded-view.active {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .expanded-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 15px;
+            padding: 10px 20px;
+            color: white;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .expanded-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .profile-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+        }
+
+        .today-check {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .check-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .check-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .btn-fail {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+            color: white;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(45deg, #FF9800, #F57C00);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status-display {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .status-success {
+            background: rgba(76, 175, 80, 0.3);
+            color: #4CAF50;
+        }
+
+        .status-fail {
+            background: rgba(244, 67, 54, 0.3);
+            color: #f44336;
+        }
+
+        .status-pending {
+            background: rgba(255, 193, 7, 0.3);
+            color: #FFC107;
+        }
+
+        .history-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-top: 30px;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .history-title {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .history-date {
+            font-weight: bold;
+        }
+
+        .history-status {
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .payment-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-top: 30px;
+        }
+
+        .payment-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .payment-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .payment-input {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 1em;
+            width: 150px;
+        }
+
+        .payment-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .countdown {
+            text-align: center;
+            font-size: 1.1em;
+            color: #FFC107;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .main-view {
+                grid-template-columns: 1fr;
+            }
+
+            .expanded-content {
+                grid-template-columns: 1fr;
+            }
+
+            .user-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .check-buttons {
+                flex-direction: column;
+            }
+
+            .payment-controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="app-title">DisciplineForge</h1>
+            <p class="app-subtitle">Mutual Accountability System</p>
+        </div>
+
+        <div class="main-view" id="mainView">
+            <!-- Rupam's Template -->
+            <div class="user-template" onclick="expandUser('your')">
+                <div class="user-photo">R</div>
+                <div class="user-name">Rupam</div>
+                <div class="user-stats">
+                    <div class="stat-box">
+                        <div class="stat-value" id="yourDisciplineDays">0</div>
+                        <div class="stat-label">Discipline Days</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value debt-amount" id="yourDebt">₹0</div>
+                        <div class="stat-label">Total Debt</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subem's Template -->
+            <div class="user-template" onclick="expandUser('friend')">
+                <div class="user-photo">S</div>
+                <div class="user-name">Subem</div>
+                <div class="user-stats">
+                    <div class="stat-box">
+                        <div class="stat-value" id="friendDisciplineDays">0</div>
+                        <div class="stat-label">Discipline Days</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value debt-amount" id="friendDebt">₹0</div>
+                        <div class="stat-label">Total Debt</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expanded View -->
+        <div class="expanded-view" id="expandedView">
+            <div class="expanded-header">
+                <button class="back-btn" onclick="closeExpanded()">← Back</button>
+                <h2 id="expandedUserName">User Details</h2>
+                <div></div>
+            </div>
+
+            <div class="expanded-content">
+                <div class="profile-section">
+                    <div class="user-photo" id="expandedUserPhoto">U</div>
+                    <div class="user-name" id="expandedUserNameDisplay">User</div>
+                    <div class="user-stats">
+                        <div class="stat-box">
+                            <div class="stat-value" id="expandedDisciplineDays">0</div>
+                            <div class="stat-label">Discipline Days</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value debt-amount" id="expandedDebt">₹0</div>
+                            <div class="stat-label">Total Debt</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="today-check">
+                    <div class="check-title">Today's Discipline Check</div>
+                    <div class="check-buttons">
+                        <button class="btn btn-success" onclick="markToday(true)" id="winBtn">
+                            ✓ I Won Today!
+                        </button>
+                        <button class="btn btn-fail" onclick="markToday(false)" id="failBtn">
+                            ✗ I Failed Today
+                        </button>
+                    </div>
+                    <div class="status-display" id="todayStatus">
+                        <div class="status-pending">Pending - Mark your progress!</div>
+                    </div>
+                    <div class="countdown" id="countdown"></div>
+                </div>
+            </div>
+
+            <div class="payment-section">
+                <div class="payment-title">Payment & Penalty Settings</div>
+                <div class="payment-controls">
+                    <input type="number" class="payment-input" id="paymentAmount" placeholder="Enter amount (₹)">
+                    <button class="btn btn-warning" onclick="processPayment()">
+                        Pay Debt
+                    </button>
+                    <button class="btn btn-primary" onclick="setPenalty()">
+                        Set Daily Penalty
+                    </button>
+                </div>
+                <div style="text-align: center; margin-top: 15px; color: #FFC107;">
+                    Current Daily Penalty: ₹<span id="currentPenaltyDisplay">100</span>
+                </div>
+            </div>
+
+            <div class="history-section">
+                <div class="history-header">
+                    <h3 class="history-title">Recent History</h3>
+                    <button class="btn btn-primary" onclick="loadHistory()">Refresh</button>
+                </div>
+                <div class="history-list" id="historyList">
+                    Loading history...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://s1ygvw6584.execute-api.ap-south-1.amazonaws.com';
+        let currentUser = null;
+        let currentPenalty = 100;
+        let todayMarked = false;
+
+        // User configuration
+        const users = {
+            your: {
+                name: 'Rupam',
+                photo: 'R',
+                disciplineDaysField: 'r_total_discipline_days',
+                debtField: 'r_total_debt',
+                penaltyField: 'r_penalty',
+                historyTable: 'rupam'
+            },
+            friend: {
+                name: 'Subem',
+                photo: 'S',
+                disciplineDaysField: 's_total_discipline_days',
+                debtField: 's_total_debt',
+                penaltyField: 's_penalty',
+                historyTable: 'subem'
+            }
+        };
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function () {
+            loadAllStats();
+            startCountdown();
+
+            // Check for auto-fail every minute
+            setInterval(checkAutoFail, 60000);
+        });
+
+        async function loadAllStats() {
+            try {
+                const response = await fetch(`${API_BASE}/get-totals`);
+                const data = await response.json();
+
+                // Convert array to an object
+                const totals = {};
+                data.forEach(item => { totals[item.name] = item.value; });
+
+                // Update Rupam's stats
+                document.getElementById('yourDisciplineDays').textContent = totals.r_total_discipline_days || 0;
+                document.getElementById('yourDebt').textContent = `₹${totals.r_total_debt || 0}`;
+
+                // Update Subem's stats
+                document.getElementById('friendDisciplineDays').textContent = totals.s_total_discipline_days || 0;
+                document.getElementById('friendDebt').textContent = `₹${totals.s_total_debt || 0}`;
+
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        async function loadPenalty(user) {
+            try {
+                const response = await fetch(`${API_BASE}/get-totals`);
+                const data = await response.json();
+
+                const totals = {};
+                data.forEach(item => {
+                    totals[item.name] = item.value;
+                });
+
+                const penaltyValue = totals[user.penaltyField] || 100;
+                currentPenalty = penaltyValue;
+                document.getElementById('currentPenaltyDisplay').textContent = penaltyValue;
+
+                console.log(`Loaded penalty for ${user.name}: ₹${penaltyValue}`);
+            } catch (error) {
+                console.error('Failed to load penalty:', error);
+                // Set default penalty if load fails
+                currentPenalty = 100;
+                document.getElementById('currentPenaltyDisplay').textContent = '100';
+            }
+        }
+
+        function expandUser(userType) {
+            currentUser = userType;
+            const user = users[userType];
+
+            // Update expanded view
+            document.getElementById('expandedUserName').textContent = user.name;
+            document.getElementById('expandedUserNameDisplay').textContent = user.name;
+            document.getElementById('expandedUserPhoto').textContent = user.photo;
+
+            // Update stats in expanded view
+            const disciplineDays = document.getElementById(userType + 'DisciplineDays').textContent;
+            const debt = document.getElementById(userType + 'Debt').textContent;
+
+            document.getElementById('expandedDisciplineDays').textContent = disciplineDays;
+            document.getElementById('expandedDebt').textContent = debt;
+
+            // Show expanded view
+            document.getElementById('expandedView').classList.add('active');
+
+            // Load penalty, history and check today's status
+            loadPenalty(user);
+            loadHistory();
+            checkTodayStatus();
+        }
+
+        function closeExpanded() {
+            document.getElementById('expandedView').classList.remove('active');
+            currentUser = null;
+            todayMarked = false;
+
+            // Re-enable buttons
+            document.getElementById('winBtn').disabled = false;
+            document.getElementById('failBtn').disabled = false;
+
+            // Clear payment input
+            document.getElementById('paymentAmount').value = '';
+
+            // Reload main stats
+            loadAllStats();
+        }
+
+        async function markToday(success) {
+            if (!currentUser || todayMarked) return;
+
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const user = users[currentUser];
+
+                const response = await fetch(`${API_BASE}/add-discipline`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user: user.name,
+                        date: today,
+                        value: success ? 1 : 0
+                    })
+                });
+
+                if (response.ok) {
+                    todayMarked = true;
+                    updateTodayStatus(success);
+
+                    // The Lambda function now handles updating totals automatically
+                    setTimeout(() => {
+                        loadAllStats();
+                        loadHistory();
+                        // Update expanded view stats
+                        setTimeout(() => {
+                            const disciplineDays = document.getElementById(currentUser + 'DisciplineDays').textContent;
+                            const debt = document.getElementById(currentUser + 'Debt').textContent;
+                            document.getElementById('expandedDisciplineDays').textContent = disciplineDays;
+                            document.getElementById('expandedDebt').textContent = debt;
+                        }, 500);
+                    }, 500);
+                } else {
+                    const errorData = await response.json();
+                    alert(errorData.message || 'Error marking day');
+                }
+            } catch (error) {
+                console.error('Error marking day:', error);
+                alert('Error marking day. Please try again.');
+            }
+        }
+
+        async function updateTotals(field, value, overwrite = false) {
+            try {
+                let operation;
+                let amount;
+
+                if (overwrite) {
+                    operation = 'set';
+                    amount = value;
+                } else {
+                    operation = value >= 0 ? 'add' : 'subtract';
+                    amount = Math.abs(value);
+                }
+
+                const body = {
+                    key: field,
+                    operation: operation,
+                    amount: amount
+                };
+
+                const response = await fetch(`${API_BASE}/update-totals`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                console.log('Update result:', result);
+            } catch (error) {
+                console.error('Error updating totals:', error);
+                throw error;
+            }
+        }
+
+        function updateTodayStatus(success) {
+            const statusElement = document.getElementById('todayStatus');
+            const winBtn = document.getElementById('winBtn');
+            const failBtn = document.getElementById('failBtn');
+
+            if (success) {
+                statusElement.innerHTML = '<div class="status-success">✓ Great job! You won today!</div>';
+            } else {
+                statusElement.innerHTML = '<div class="status-fail">✗ You failed today. Phone restrictions apply!</div>';
+            }
+
+            winBtn.disabled = true;
+            failBtn.disabled = true;
+        }
+
+        async function loadHistory() {
+            if (!currentUser) return;
+
+            try {
+                const user = users[currentUser];
+
+                const response = await fetch(`${API_BASE}/get-discipline?user=${user.name}`);
+                const data = await response.json();
+
+                const userHistory = data.slice(0, 10);
+                const disciplineField = currentUser === 'your' ? 'am_I_disciplined' : 'is_he_disciplined';
+
+                const historyList = document.getElementById('historyList');
+
+                if (userHistory.length === 0) {
+                    historyList.innerHTML = '<p>No history found. Start your discipline journey!</p>';
+                    return;
+                }
+
+                historyList.innerHTML = userHistory.map(item => {
+                    const date = new Date(item.date).toLocaleDateString();
+                    const statusValue = item[disciplineField];
+                    const status = statusValue === 1 ? 'Won' : 'Failed';
+                    const statusClass = statusValue === 1 ? 'status-success' : 'status-fail';
+
+                    return `
+                        <div class="history-item">
+                            <span class="history-date">${date}</span>
+                            <span class="history-status ${statusClass}">${status}</span>
+                        </div>
+                    `;
+                }).join('');
+
+                // Check if today is already marked
+                const today = new Date().toISOString().split('T')[0];
+                const todayEntry = userHistory.find(item => item.date === today);
+                if (todayEntry) {
+                    todayMarked = true;
+                    updateTodayStatus(todayEntry[disciplineField] === 1);
+                }
+
+            } catch (error) {
+                console.error('Error loading history:', error);
+                document.getElementById('historyList').innerHTML = '<p>Error loading history.</p>';
+            }
+        }
+
+        async function processPayment() {
+            if (!currentUser) return;
+
+            const amount = parseInt(document.getElementById('paymentAmount').value);
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+
+            try {
+                const user = users[currentUser];
+
+                // Get current debt to check if payment amount is valid
+                const response = await fetch(`${API_BASE}/get-totals`);
+                const data = await response.json();
+                const totals = {};
+                data.forEach(item => { totals[item.name] = item.value; });
+
+                const currentDebt = totals[user.debtField] || 0;
+
+                if (amount > currentDebt) {
+                    alert(`Payment amount (₹${amount}) cannot be greater than current debt (₹${currentDebt})`);
+                    return;
+                }
+
+                // Subtract from debt (send negative value to subtract)
+                await updateTotals(user.debtField, -amount);
+
+                // Update display
+                await loadAllStats();
+
+                // Update expanded view debt display
+                const newDebt = Math.max(0, currentDebt - amount);
+                document.getElementById('expandedDebt').textContent = `₹${newDebt}`;
+
+                // Clear input
+                document.getElementById('paymentAmount').value = '';
+
+                alert(`₹${amount} payment processed successfully! Remaining debt: ₹${newDebt}`);
+
+            } catch (error) {
+                console.error('Error processing payment:', error);
+                alert('Error processing payment. Please try again.');
+            }
+        }
+
+        async function setPenalty() {
+            if (!currentUser) return;
+
+            const amount = parseInt(document.getElementById('paymentAmount').value);
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid penalty amount');
+                return;
+            }
+
+            try {
+                const user = users[currentUser];
+
+                // Update penalty in database
+                await updateTotals(user.penaltyField, amount, true);
+
+                // Update local penalty and display
+                currentPenalty = amount;
+                document.getElementById('currentPenaltyDisplay').textContent = amount;
+                document.getElementById('paymentAmount').value = '';
+
+                alert(`Daily penalty set to ₹${amount} for ${user.name}.`);
+
+            } catch (error) {
+                console.error('Failed to set penalty:', error);
+                alert('Failed to save penalty. Please try again.');
+            }
+        }
+
+        function checkTodayStatus() {
+            if (!currentUser) return;
+
+            const today = new Date().toISOString().split('T')[0];
+            const lastCheck = localStorage.getItem(`lastCheck_${currentUser}`);
+
+            if (lastCheck !== today) {
+                todayMarked = false;
+                document.getElementById('todayStatus').innerHTML = '<div class="status-pending">Pending - Mark your progress!</div>';
+                document.getElementById('winBtn').disabled = false;
+                document.getElementById('failBtn').disabled = false;
+            }
+        }
+
+        function startCountdown() {
+            function updateCountdown() {
+                const now = new Date();
+                const midnight = new Date();
+                midnight.setHours(24, 0, 0, 0);
+
+                const diff = midnight - now;
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                const countdownEl = document.getElementById('countdown');
+                if (countdownEl) {
+                    countdownEl.textContent = `Time left: ${hours}h ${minutes}m ${seconds}s`;
+                }
+            }
+
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        }
+
+        async function checkAutoFail() {
+            // This would be handled by the Lambda function with CloudWatch Events
+            // But we can add client-side checks as well
+            const now = new Date();
+            if (now.getHours() === 0 && now.getMinutes() === 0) {
+                // Refresh data to get any auto-fail updates
+                loadAllStats();
+                if (currentUser) {
+                    loadHistory();
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
